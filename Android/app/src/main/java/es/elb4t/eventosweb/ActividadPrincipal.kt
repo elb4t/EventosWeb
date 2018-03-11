@@ -14,6 +14,7 @@ class ActividadPrincipal : AppCompatActivity() {
         setContentView(R.layout.actividad_principal)
         navegador = findViewById(R.id.webkit)
         navegador.settings.javaScriptEnabled = true
+        navegador.settings.builtInZoomControls = false
         navegador.loadUrl("file:///android_asset/index.html")
         //navegador.loadUrl("https://eventos-3161f.firebaseapp.com/index.html")
         navegador.webViewClient = object :WebViewClient(){
