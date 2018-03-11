@@ -20,8 +20,8 @@ class ActividadPrincipal : AppCompatActivity() {
     private lateinit var barraProgreso: ProgressBar
     var dialogo: ProgressDialog? = null
     lateinit var btnDetener: Button
-    lateinit var btnAnterior:Button
-    lateinit var btnSiguiente:Button
+    lateinit var btnAnterior: Button
+    lateinit var btnSiguiente: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,6 +73,13 @@ class ActividadPrincipal : AppCompatActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        if (navegador.canGoBack())
+            navegador.goBack()
+        else
+            super.onBackPressed()
+    }
+
     fun detenerCarga(v: View) {
         navegador.stopLoading()
     }
@@ -88,6 +95,6 @@ class ActividadPrincipal : AppCompatActivity() {
     fun cargarUrlText(v: View) {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(urlText.windowToken, 0)
-        navegador.loadUrl("http://"+urlText.text.toString())
+        navegador.loadUrl("http://" + urlText.text.toString())
     }
 }
