@@ -14,6 +14,8 @@ class ActividadPrincipal : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.actividad_principal)
         navegador = findViewById(R.id.webkit)
-        navegador.loadUrl("https://eventos-3161f.firebaseapp.com/index.html")
+        navegador.settings.javaScriptEnabled = true
+        navegador.loadUrl("file:///android_asset/index.html")
+        //navegador.loadUrl("https://eventos-3161f.firebaseapp.com/index.html")
     }
 }
