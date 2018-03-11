@@ -18,6 +18,10 @@ class ActividadPrincipal : AppCompatActivity() {
         //navegador.loadUrl("https://eventos-3161f.firebaseapp.com/index.html")
         navegador.webViewClient = object :WebViewClient(){
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                var url_filtro:String = "http://www.androidcurso.com/"
+                if (url != url_filtro){
+                    view.loadUrl(url_filtro)
+                }
                 return false
             }
         }
