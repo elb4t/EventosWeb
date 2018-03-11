@@ -3,8 +3,7 @@ package es.elb4t.eventosweb
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.webkit.WebView
-
-
+import android.webkit.WebViewClient
 
 
 class ActividadPrincipal : AppCompatActivity() {
@@ -17,5 +16,10 @@ class ActividadPrincipal : AppCompatActivity() {
         navegador.settings.javaScriptEnabled = true
         navegador.loadUrl("file:///android_asset/index.html")
         //navegador.loadUrl("https://eventos-3161f.firebaseapp.com/index.html")
+        navegador.webViewClient = object :WebViewClient(){
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                return false
+            }
+        }
     }
 }
