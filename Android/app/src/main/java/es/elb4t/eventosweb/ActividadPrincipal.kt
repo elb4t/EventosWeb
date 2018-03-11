@@ -1,18 +1,24 @@
 package es.elb4t.eventosweb
 
+import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import android.webkit.JsResult
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.ProgressBar
 import kotlinx.android.synthetic.main.actividad_principal.*
+
+
 
 
 class ActividadPrincipal : AppCompatActivity() {
@@ -54,6 +60,13 @@ class ActividadPrincipal : AppCompatActivity() {
                     barraProgreso.visibility = View.GONE
                 }
             }
+            override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
+                AlertDialog.Builder(this@ActividadPrincipal).setTitle("Mensaje")
+                        .setMessage(message).setPositiveButton(android.R.string.ok, { dialogInterface: DialogInterface, i: Int ->
+                            result.confirm()
+                        }).setCancelable(false).create().show()
+                return true
+            }
         }
         navegador.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
@@ -71,6 +84,8 @@ class ActividadPrincipal : AppCompatActivity() {
                 btnSiguiente.isEnabled = view.canGoForward()
             }
         }
+        this.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+        urlText.clearFocus()
     }
 
     override fun onBackPressed() {
