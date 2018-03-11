@@ -4,8 +4,10 @@ import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.WindowManager
@@ -16,9 +18,10 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.ProgressBar
+import android.widget.Toast
 import kotlinx.android.synthetic.main.actividad_principal.*
-
-
+import java.net.MalformedURLException
+import java.net.URL
 
 
 class ActividadPrincipal : AppCompatActivity() {
@@ -39,8 +42,8 @@ class ActividadPrincipal : AppCompatActivity() {
         navegador = findViewById(R.id.webkit)
         navegador.settings.javaScriptEnabled = true
         navegador.settings.builtInZoomControls = false
-        navegador.loadUrl("file:///android_asset/index.html")
-        //navegador.loadUrl("https://eventos-3161f.firebaseapp.com/index.html")
+        //navegador.loadUrl("file:///android_asset/index.html")
+        navegador.loadUrl("https://eventos-3161f.firebaseapp.com/index.html")
         navegador.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
                 var url_filtro: String = "http://www.androidcurso.com/"
@@ -60,6 +63,7 @@ class ActividadPrincipal : AppCompatActivity() {
                     barraProgreso.visibility = View.GONE
                 }
             }
+
             override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
                 AlertDialog.Builder(this@ActividadPrincipal).setTitle("Mensaje")
                         .setMessage(message).setPositiveButton(android.R.string.ok, { dialogInterface: DialogInterface, i: Int ->
@@ -90,8 +94,28 @@ class ActividadPrincipal : AppCompatActivity() {
                 builder.show()
             }
         }
+        navegador.setDownloadListener { url, userAgent, contentDisposition, mimetype, contentLength ->
+            val builder = AlertDialog.Builder(this@ActividadPrincipal)
+            builder.setTitle("Descarga")
+            builder.setMessage("¿Deseas guardar el archivo?")
+            builder.setCancelable(false).setPositiveButton("Aceptar") { dialog, id ->
+                val urlDescarga: URL
+                try {
+                    urlDescarga = URL(url)
+                    var p:String? = url
+                    //DescargaFicheroManager.execute(url,"",this@ActividadPrincipal)
+                    DescargarFichero(this@ActividadPrincipal).Descargar(url)
+                } catch (e: MalformedURLException) {
+                    e.printStackTrace()
+                }
+            }.setNegativeButton("Cancelar") { dialog, id -> dialog.cancel() }
+            builder.create().show()
+        }
+
         this.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         urlText.clearFocus()
+        ActivityCompat.requestPermissions(this@ActividadPrincipal,
+                arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
     }
 
     override fun onBackPressed() {
@@ -116,6 +140,20 @@ class ActividadPrincipal : AppCompatActivity() {
     fun cargarUrlText(v: View) {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(urlText.windowToken, 0)
+        var url = urlText.text
+
         navegador.loadUrl("http://" + urlText.text.toString())
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        when (requestCode) {
+            1 -> {
+                if (!(grantResults.size > 0 &&
+                                grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    Toast.makeText(this@ActividadPrincipal,
+                            "Permiso denegado para mantener escribir en el almacenamiento.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
     }
 }
