@@ -83,6 +83,12 @@ class ActividadPrincipal : AppCompatActivity() {
                 btnAnterior.isEnabled = view.canGoBack()
                 btnSiguiente.isEnabled = view.canGoForward()
             }
+
+            override fun onReceivedError(view: WebView?, errorCode: Int, description: String?, failingUrl: String?) {
+                val builder = AlertDialog.Builder(this@ActividadPrincipal)
+                builder.setMessage(description).setPositiveButton("Aceptar", null).setTitle("onReceivedError")
+                builder.show()
+            }
         }
         this.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         urlText.clearFocus()
