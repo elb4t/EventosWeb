@@ -6,7 +6,9 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.net.ConnectivityManager
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
@@ -31,6 +33,10 @@ class ActividadPrincipal : AppCompatActivity() {
     lateinit var btnDetener: Button
     lateinit var btnAnterior: Button
     lateinit var btnSiguiente: Button
+    val PERMISOS = arrayOf(
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            android.Manifest.permission.ACCESS_NETWORK_STATE
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,7 +84,7 @@ class ActividadPrincipal : AppCompatActivity() {
                 dialogo!!.setMessage("Cargando...")
                 dialogo!!.setCancelable(true)
                 dialogo!!.show()
-                btnDetener.isEnabled = true
+                btnDetener.isEnabled = comprobarConectividad()
             }
 
             override fun onPageFinished(view: WebView, url: String) {
@@ -102,7 +108,7 @@ class ActividadPrincipal : AppCompatActivity() {
                 val urlDescarga: URL
                 try {
                     urlDescarga = URL(url)
-                    var p:String? = url
+                    var p: String? = url
                     //DescargaFicheroManager.execute(url,"",this@ActividadPrincipal)
                     DescargarFichero(this@ActividadPrincipal).Descargar(url)
                 } catch (e: MalformedURLException) {
@@ -114,8 +120,7 @@ class ActividadPrincipal : AppCompatActivity() {
 
         this.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         urlText.clearFocus()
-        ActivityCompat.requestPermissions(this@ActividadPrincipal,
-                arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+        ActivityCompat.requestPermissions(this@ActividadPrincipal, PERMISOS, 1)
     }
 
     override fun onBackPressed() {
@@ -130,30 +135,51 @@ class ActividadPrincipal : AppCompatActivity() {
     }
 
     fun irPaginaAnterior(v: View) {
-        navegador.goBack()
+        if (comprobarConectividad()) {
+            navegador.goBack()
+        }
     }
 
     fun irPaginaSiguiente(v: View) {
-        navegador.goForward()
+        if (comprobarConectividad()) {
+            navegador.goForward()
+        }
     }
 
     fun cargarUrlText(v: View) {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(urlText.windowToken, 0)
         var url = urlText.text
-
+        var x = "adfadf"
         navegador.loadUrl("http://" + urlText.text.toString())
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         when (requestCode) {
             1 -> {
-                if (!(grantResults.size > 0 &&
-                                grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    Toast.makeText(this@ActividadPrincipal,
-                            "Permiso denegado para mantener escribir en el almacenamiento.", Toast.LENGTH_SHORT).show();
+                grantResults.forEach { result ->
+                    if (result != PackageManager.PERMISSION_GRANTED) {
+                        Snackbar.make(layout,
+                                "Hay permisos necesarios para la aplicación sin activar", Snackbar.LENGTH_INDEFINITE)
+                                .setAction("Activar", {
+                                    ActivityCompat.requestPermissions(this, PERMISOS, 1)
+                                }).show()
+
+                        return
+                    }
                 }
             }
         }
+    }
+
+    private fun comprobarConectividad(): Boolean {
+        val connectivityManager = this.getSystemService(
+                Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val info = connectivityManager.activeNetworkInfo
+        if (info == null || !info.isConnected || !info.isAvailable) {
+            Toast.makeText(this@ActividadPrincipal, "Oops! No tienes conexión a internet", Toast.LENGTH_LONG).show()
+            return false
+        }
+        return true
     }
 }
